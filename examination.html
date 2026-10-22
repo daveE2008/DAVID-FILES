@@ -1,0 +1,189 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExamPort - Examination</title>
+
+    <style>
+        body {
+            background-color: #ddffdd;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        h1 {
+            color: blue;
+            background-color: rgb(235, 6, 6);
+            padding: 10px;
+        }
+
+        .question {
+            background: white;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+
+        button {
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>EXAMPORT</h1>
+    <h2>Computer-Based Examination</h2>
+
+    <p>Student Name: <strong id="studentName"></strong></p>
+    <p>Examination Number: <strong id="examNumber"></strong></p>
+
+    <hr>
+
+    <form id="examForm">
+
+        <div class="question">
+            <p><strong>1. What is the capital of Nigeria?</strong></p>
+
+            <label>
+                <input type="radio" name="q1" value="a">
+                Lagos
+            </label><br>
+
+            <label>
+                <input type="radio" name="q1" value="b">
+                Abuja
+            </label><br>
+
+            <label>
+                <input type="radio" name="q1" value="c">
+                Kano
+            </label>
+        </div>
+
+        <div class="question">
+            <p><strong>2. What is the largest ocean on Earth?</strong></p>
+
+            <label>
+                <input type="radio" name="q2" value="a">
+                Pacific Ocean
+            </label><br>
+
+            <label>
+                <input type="radio" name="q2" value="b">
+                Atlantic Ocean
+            </label><br>
+
+            <label>
+                <input type="radio" name="q2" value="c">
+                Indian Ocean
+            </label>
+        </div>
+
+        <div class="question">
+            <p><strong>3. What is 2 + 2?</strong></p>
+
+            <label>
+                <input type="radio" name="q3" value="a">
+                3
+            </label><br>
+
+            <label>
+                <input type="radio" name="q3" value="b">
+                5
+            </label><br>
+
+            <label>
+                <input type="radio" name="q3" value="c">
+                4
+            </label>
+        </div>
+
+        <button type="submit">Submit Examination</button>
+
+    </form>
+
+    <script>
+        // Retrieve the candidate details saved by the portal page.
+        const studentName = localStorage.getItem("studentName");
+        const examNumber = localStorage.getItem("examNumber");
+
+      // If either value is missing, return there rather than showing an
+        // examination without an identified candidate.  // A candidate must start at the portal page to enter both details.
+        
+        if (!studentName || !examNumber) {
+            window.location.href = "d%20cbt.html";
+        } else {
+            Display the saved details in the page using textContent so the
+            // values are treated as text rather than interpreted as HTML. //
+            document.getElementById("studentName").textContent =
+                studentName;
+
+            document.getElementById("examNumber").textContent =
+                examNumber;
+        }
+
+        // This answer key is used to mark each response and calculate the
+        // candidate's score when the examination form is submitted.
+        const correctAnswers = {
+            q1: "b",
+            q2: "a",
+            q3: "c"
+        };
+
+        // Handle form submission: prevent a page reload, collect and mark the
+        // selected answers, save the resulting data, then open the results page.
+        document.getElementById("examForm")
+            .addEventListener("submit", function(event) {
+
+                // Stop the browser's default form submission so this page can
+                // process the answers and store the result first.
+                event.preventDefault();
+
+                // Keep the selected option for each question and count the
+                // number of selected options that match the answer key.
+                const answers = {};
+                let score = 0;
+
+                for (const question in correctAnswers) {
+                    // Find the checked radio button whose name matches the
+                    // current question; an empty string represents no choice.
+                    const selected = document.querySelector(
+                        'input[name="' + question + '"]:checked'
+                    );
+
+                    answers[question] = selected
+                        ? selected.value
+                        : "";
+
+                    if (answers[question] === correctAnswers[question]) {
+                        score++;
+                    }
+                }
+
+                // Package the candidate's responses, answer key, earned score,
+                // and number of questions into one result object.
+                const result = {
+                    answers: answers,
+                    correctAnswers: correctAnswers,
+                    score: score,
+                    total: Object.keys(correctAnswers).length
+                };
+
+                // Serialize the object because localStorage stores string
+                // values, allowing submit.html to restore it later.
+                localStorage.setItem(
+                    "examResult",
+                    JSON.stringify(result)
+                );
+
+                // Navigate to the page that displays the score and answer
+                // review using the result just saved above.
+                window.location.href = "submit.html";
+            });
+    </script>
+
+</body>
+</html>

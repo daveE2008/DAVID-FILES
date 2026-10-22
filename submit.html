@@ -1,0 +1,188 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExamPort - Examination Results</title>
+
+    <style>
+        body {
+            background-color: #ddffdd;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        h1 {
+            color: blue;
+            background-color: rgb(235, 6, 6);
+            padding: 10px;
+        }
+
+        .result {
+            background: white;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+
+        .correct {
+            color: green;
+            font-weight: bold;
+        }
+
+        .wrong {
+            color: red;
+            font-weight: bold;
+        }
+
+        button {
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>EXAMPORT</h1>
+    <h2>Examination Submitted Successfully!</h2>
+
+    <p>Congratulations! You have submitted your examination.</p>
+
+    <hr>
+
+    <h2>Candidate Details</h2>
+
+    <p>Student Name: <strong id="studentName"></strong></p>
+    <p>Examination Number: <strong id="examNumber"></strong></p>
+
+    <hr>
+
+    <h2>Your Results</h2>
+
+    <p>Score: <strong id="score"></strong></p>
+    <p>Percentage: <strong id="percentage"></strong></p>
+
+    <h2>Answer Review</h2>
+    <div id="answerReview"></div>
+
+    <br>
+
+    <button onclick="window.location.href='d%20cbt.html'">
+        Return to Home Page
+    </button>
+
+    <script>
+        // Load the candidate details and serialized examination result saved
+        // by the portal and examination pages.
+        const studentName = localStorage.getItem("studentName");
+        const examNumber = localStorage.getItem("examNumber");
+        const savedResult = localStorage.getItem("examResult");
+
+        // Results can only be shown when all required data exists. Otherwise
+        // notify the visitor and send them back to the portal to begin.
+        if (!studentName || !examNumber || !savedResult) {
+            alert("No examination result found. Please take the exam first.");
+            window.location.href = "d%20cbt.html";
+        } else {
+            // Convert the stored JSON string back into an object so its score,
+            // answers, and answer key can be used below.
+            const result = JSON.parse(savedResult);
+
+            // Fill in the candidate identity and score summary. The percentage
+            // is calculated from the score and total, then rounded to one
+            // decimal place for display.
+            document.getElementById("studentName").textContent =
+                studentName;
+
+            document.getElementById("examNumber").textContent =
+                examNumber;
+
+            document.getElementById("score").textContent =
+                result.score + " / " + result.total;
+
+            document.getElementById("percentage").textContent =
+                ((result.score / result.total) * 100).toFixed(1) + "%";
+
+            // Define the same question text and option labels used on the
+            // examination page so the result review can show readable answers.
+            const questions = [
+                {
+                    id: "q1",
+                    text: "What is the capital of Nigeria?",
+                    options: {
+                        a: "Lagos",
+                        b: "Abuja",
+                        c: "Kano"
+                    }
+                },
+                {
+                    id: "q2",
+                    text: "What is the largest ocean on Earth?",
+                    options: {
+                        a: "Pacific Ocean",
+                        b: "Atlantic Ocean",
+                        c: "Indian Ocean"
+                    }
+                },
+                {
+                    id: "q3",
+                    text: "What is 2 + 2?",
+                    options: {
+                        a: "3",
+                        b: "5",
+                        c: "4"
+                    }
+                }
+            ];
+
+            // Find the container that will hold one review card per question.
+            const review = document.getElementById("answerReview");
+
+            // Build the review for each question, showing the candidate's
+            // answer and marking it correct or incorrect against the answer key.
+            questions.forEach(function(question, index) {
+                const answer = result.answers[question.id];
+                const correct = result.correctAnswers[question.id];
+                const isCorrect = answer === correct;
+
+                // Create a card and heading identifying this question.
+                const card = document.createElement("div");
+                card.className = "result";
+
+                const heading = document.createElement("h3");
+                heading.textContent =
+                    "Question " + (index + 1) + ": " + question.text;
+                card.appendChild(heading);
+
+                // Convert the saved option letter into its label; if no valid
+                // option was selected, display "Not answered".
+                const yourAnswer = document.createElement("p");
+                yourAnswer.textContent =
+                    "Your answer: " +
+                    (question.options[answer] || "Not answered");
+                card.appendChild(yourAnswer);
+
+                // Apply the matching CSS class and status label to indicate
+                // whether the candidate's response matches the correct one.
+                const status = document.createElement("p");
+                status.className = isCorrect ? "correct" : "wrong";
+                status.textContent = isCorrect ? "CORRECT" : "INCORRECT";
+                card.appendChild(status);
+
+                // For incorrect responses, also reveal the correct option.
+                if (!isCorrect) {
+                    const correctAnswer = document.createElement("p");
+                    correctAnswer.textContent =
+                        "Correct answer: " + question.options[correct];
+                    card.appendChild(correctAnswer);
+                }
+
+                // Add the completed question card to the answer-review section.
+                review.appendChild(card);
+            });
+        }
+    </script>
+
+</body>
+</html>
