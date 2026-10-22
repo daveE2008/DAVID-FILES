@@ -114,10 +114,9 @@
         // examination without an identified candidate.  // A candidate must start at the portal page to enter both details.
         
         if (!studentName || !examNumber) {
-            window.location.href = "d%20cbt.html";
+            window.location.href = "index.html";
         } else {
-            Display the saved details in the page using textContent so the
-            // values are treated as text rather than interpreted as HTML. //
+            // Display the saved details as text rather than interpreting them as HTML.
             document.getElementById("studentName").textContent =
                 studentName;
 
